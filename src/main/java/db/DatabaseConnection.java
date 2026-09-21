@@ -9,26 +9,11 @@ import java.sql.SQLException;
 public class DatabaseConnection {
 
     private static DatabaseConnection instance;
-    private Connection connection;
 
     private DatabaseConnection() {
-        try {
-            connection = DriverManager.getConnection(
-                    DatabaseConfig.URL,
-                    DatabaseConfig.USER,
-                    DatabaseConfig.PASSWORD
-            );
-
-            System.out.println("Database connected successfully!");
-
-        } catch (SQLException e) {
-            System.out.println("Database connection failed!");
-            e.printStackTrace();
-        }
     }
 
     public static DatabaseConnection getInstance() {
-
         if (instance == null) {
             instance = new DatabaseConnection();
         }
@@ -36,7 +21,24 @@ public class DatabaseConnection {
         return instance;
     }
 
+    /**
+     * Creates and returns a NEW database connection.
+     *
+     * The caller is responsible for closing the connection.
+     */
     public Connection getConnection() {
-        return connection;
+        try {
+            return DriverManager.getConnection(
+                    DatabaseConfig.URL,
+                    DatabaseConfig.USER,
+                    DatabaseConfig.PASSWORD
+            );
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Database connection failed: " + e.getMessage(),
+                    e
+            );
+        }
     }
 }

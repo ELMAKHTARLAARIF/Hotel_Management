@@ -2,8 +2,11 @@ package config;
 
 public class DatabaseConfig {
 
+    private static final String DB_HOST =
+            System.getenv().getOrDefault("DB_HOST", "localhost");
+
     public static final String URL =
-            "jdbc:postgresql://localhost:5432/Hotil_Management";
+            "jdbc:postgresql://" + DB_HOST + ":5432/Hotil_Management";
 
     public static final String USER =
             "laa";
