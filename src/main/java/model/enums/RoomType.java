@@ -1,5 +1,7 @@
 package model.enums;
 
-enum RoomType{
-
+public enum RoomType {
+    SINGLE,
+    DOUBLE,
+    SUITE
 }

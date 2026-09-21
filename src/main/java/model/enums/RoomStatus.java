@@ -1,5 +1,7 @@
 package model.enums;
 
-enum RoomStatus{
-
+public enum RoomStatus {
+    AVAILABLE,
+    OCCUPIED,
+    MAINTENANCE
 }

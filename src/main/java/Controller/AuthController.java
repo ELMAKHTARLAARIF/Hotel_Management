@@ -1,5 +1,5 @@
 package Controller;
-
+import exception.EmailFormatException;
 import exception.EmailAlreadyExistsException;
 import exception.InvalidCredentialsException;
 import model.UserDomain;
@@ -43,10 +43,12 @@ public class AuthController {
 
             System.out.println();
 
-        } catch (EmailAlreadyExistsException | IllegalArgumentException e) {
-
+        } catch (
+                EmailAlreadyExistsException |
+                EmailFormatException |
+                IllegalArgumentException e
+        ) {
             System.out.println("Error: " + e.getMessage());
-
             System.out.println();
         }
     }
@@ -77,12 +79,13 @@ public class AuthController {
 
             return user;
 
-        } catch (InvalidCredentialsException | IllegalArgumentException e) {
-
+        } catch (
+                InvalidCredentialsException |
+                EmailFormatException |
+                IllegalArgumentException e
+        ) {
             System.out.println("Error: " + e.getMessage());
-
             System.out.println();
-
             return null;
         }
     }

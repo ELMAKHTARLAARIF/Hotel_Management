@@ -1,5 +1,5 @@
 package service;
-
+import exception.EmailFormatException;
 import exception.EmailAlreadyExistsException;
 import exception.InvalidCredentialsException;
 import model.UserDomain;
@@ -26,7 +26,7 @@ public class AuthService {
             String email,
             String password
     ) {
-
+        validateEmail(email);
         if (fullName == null ||
                 fullName.trim().isEmpty()) {
 
@@ -83,7 +83,21 @@ public class AuthService {
 
         return iUserRepository.create(newUser).getId();
     }
+    private void validateEmail(String email) {
 
+        if (email == null || email.isBlank()) {
+            throw new EmailFormatException("Email cannot be empty.");
+        }
+
+        String emailRegex =
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+
+        if (!email.matches(emailRegex)) {
+            throw new EmailFormatException(
+                    "Invalid email format."
+            );
+        }
+    }
     public UserDomain login(
             String email,
             String password
