@@ -17,13 +17,11 @@ public class UserDomain {
             String fullName,
             String email,
             String passwordHash,
-            String salt,
             UserRole role
     ) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.salt = salt;
         this.role = role;
     }
 
@@ -39,7 +37,6 @@ public class UserDomain {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.salt = salt;
         this.role = role;
     }
 
@@ -75,13 +72,6 @@ public class UserDomain {
         this.passwordHash = passwordHash;
     }
 
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
-    }
 
     public UserRole getRole() {
         return role;

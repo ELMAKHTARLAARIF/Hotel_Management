@@ -32,8 +32,7 @@ public class Main {
         // Database connection
         // ==============================
 
-        DatabaseConnection databaseConnection =
-                DatabaseConnection.getInstance();
+        DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
 
         // ==============================
         // User repository
@@ -45,21 +44,19 @@ public class Main {
         // Auth service
         // ==============================
 
-        AuthService authService =
-                new AuthService(userRepo);
+        AuthService authService = new AuthService(userRepo);
 
         // ==============================
         // Auth controller
         // ==============================
 
-        AuthController authController =
-                new AuthController(authService);
+        AuthController authController = new AuthController(authService);
 
 
         IRoomRepository roomRepo = new RoomRepositoryJdbc(databaseConnection);
 
-        RoomService roomService = new RoomService(roomRepo,userRepo);
-        RoomController roomController =  new RoomController(roomService);
+        RoomService roomService = new RoomService(roomRepo, userRepo);
+        RoomController roomController = new RoomController(roomService);
 
         // ==============================
         // Application state
@@ -98,8 +95,7 @@ public class Main {
 
                 System.out.print("Choice: ");
 
-                int choice =
-                        readSafeInt(scanner);
+                int choice = readSafeInt(scanner);
 
                 switch (choice) {
 
@@ -117,12 +113,9 @@ public class Main {
 
                             isLoggedIn = true;
 
-                            currentUserId =
-                                    loggedInUser.getId();
+                            currentUserId = loggedInUser.getId();
 
-                            System.out.println(
-                                    "\nLogged in successfully!\n"
-                            );
+                            System.out.println("\nLogged in successfully!\n");
                         }
 
                         break;
@@ -131,18 +124,13 @@ public class Main {
 
                         running = false;
 
-                        System.out.println(
-                                "Goodbye!"
-                        );
+                        System.out.println("Goodbye!");
 
                         break;
 
                     default:
 
-                        System.out.println(
-                                "\nInvalid choice. " +
-                                        "Please enter a valid number.\n"
-                        );
+                        System.out.println("\nInvalid choice. " + "Please enter a valid number.\n");
                 }
 
             }
@@ -153,27 +141,20 @@ public class Main {
 
             else if (loggedInUser.getRole().equals(UserRole.CLIENT)) {
 
-                System.out.println(
-                        "================================"
-                );
+                System.out.println("================================");
 
                 System.out.println("CLIENT MENU");
 
-                System.out.println(
-                        "================================"
-                );
+                System.out.println("================================");
+                System.out.println("5. Make Reservation");
 
-                System.out.println(
-                        "7. Update profile"
-                );
+                System.out.println("6. Cancel Reservation");
 
-                System.out.println(
-                        "9. Logout"
-                );
+                System.out.println("7. Update profile");
 
-                System.out.println(
-                        "0. Exit"
-                );
+                System.out.println("9. Logout");
+
+                System.out.println("0. Exit");
 
                 System.out.print("Choice: ");
 
@@ -244,13 +225,12 @@ public class Main {
 
                 System.out.print("Choice: ");
 
-                int choice =
-                        readSafeInt(scanner);
+                int choice = readSafeInt(scanner);
 
                 switch (choice) {
 
                     case 1:
-                               roomController.createRoom(scanner,loggedInUser.getId());
+                        roomController.createRoom(scanner, loggedInUser.getId());
 
                         break;
 
@@ -262,12 +242,12 @@ public class Main {
 
                     case 3:
                         roomController.listRooms(loggedInUser.getId());
-                        roomController.updateRoom(scanner,loggedInUser.getId());
+                        roomController.updateRoom(scanner, loggedInUser.getId());
                         break;
 
                     case 4:
 
-                        roomController.deleteRoom(scanner,loggedInUser.getId());
+                        roomController.deleteRoom(scanner, loggedInUser.getId());
 
                         break;
 
@@ -285,10 +265,7 @@ public class Main {
 
                     case 7:
 
-                        authController.updateProfile(
-                                scanner,
-                                currentUserId
-                        );
+                        authController.updateProfile(scanner, currentUserId);
 
                         break;
 
@@ -298,9 +275,7 @@ public class Main {
                         loggedInUser = null;
                         currentUserId = null;
 
-                        System.out.println(
-                                "\nLogged out successfully.\n"
-                        );
+                        System.out.println("\nLogged out successfully.\n");
 
                         break;
 
@@ -308,17 +283,13 @@ public class Main {
 
                         running = false;
 
-                        System.out.println(
-                                "Goodbye!"
-                        );
+                        System.out.println("Goodbye!");
 
                         break;
 
                     default:
 
-                        System.out.println(
-                                "\nInvalid choice.\n"
-                        );
+                        System.out.println("\nInvalid choice.\n");
                 }
             }
         }
@@ -326,15 +297,11 @@ public class Main {
         scanner.close();
     }
 
-    private static int readSafeInt(
-            Scanner scanner
-    ) {
+    private static int readSafeInt(Scanner scanner) {
 
         try {
 
-            return Integer.parseInt(
-                    scanner.nextLine().trim()
-            );
+            return Integer.parseInt(scanner.nextLine().trim());
 
         } catch (NumberFormatException e) {
 

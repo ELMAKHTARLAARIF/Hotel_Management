@@ -81,7 +81,7 @@ public class RoomController {
 
                 System.out.println("----------------------------");
 
-                System.out.println("Room Number: " + room.getRoomNumber()+"  |  "+"Room Type: " + room.getRoomType()+"  |  "+"Price Per Night: " + room.getPricePerNight()+"  |  "+"Room Status: " + room.getRoomStatus()+"  |  "+"Capacity: " + room.getCapacity());
+                System.out.println("Room Number: " + room.getRoomNumber() + "  |  " + "Room Type: " + room.getRoomType() + "  |  " + "Price Per Night: " + room.getPricePerNight() + "  |  " + "Room Status: " + room.getRoomStatus() + "  |  " + "Capacity: " + room.getCapacity());
 
                 System.out.println();
 
@@ -110,11 +110,7 @@ public class RoomController {
 
             String roomNumber = scanner.nextLine().trim();
 
-            RoomDomain room =
-                    roomService.getRoomByRoomNumber(
-                            adminId,
-                            roomNumber
-                    );
+            RoomDomain room = roomService.getRoomByRoomNumber(adminId, roomNumber);
 
             if (room == null) {
 
@@ -123,159 +119,95 @@ public class RoomController {
                 return;
             }
 
-            System.out.println(
-                    "Current Room Number: "
-                            + room.getRoomNumber()
-            );
+            System.out.println("Current Room Number: " + room.getRoomNumber());
 
-            System.out.print(
-                    "New Room Number "
-                            + "(blank = keep current): "
-            );
+            System.out.print("New Room Number " + "(blank = keep current): ");
 
-            String newRoomNumber =
-                    scanner.nextLine().trim();
+            String newRoomNumber = scanner.nextLine().trim();
 
             if (newRoomNumber.isBlank()) {
 
-                newRoomNumber =
-                        room.getRoomNumber();
+                newRoomNumber = room.getRoomNumber();
             }
 
-            System.out.println(
-                    "Current Room Type: "
-                            + room.getRoomType()
-            );
+            System.out.println("Current Room Type: " + room.getRoomType());
 
-            System.out.print(
-                    "New Room Type "
-                            + "(SINGLE/DOUBLE/SUITE, blank = keep current): "
-            );
+            System.out.print("New Room Type " + "(SINGLE/DOUBLE/SUITE, blank = keep current): ");
 
-            String roomTypeInput =
-                    scanner.nextLine().trim();
+            String roomTypeInput = scanner.nextLine().trim();
 
             RoomType roomType;
 
             if (roomTypeInput.isBlank()) {
 
-                roomType =
-                        room.getRoomType();
+                roomType = room.getRoomType();
 
             } else {
 
-                roomType =
-                        RoomType.valueOf(
-                                roomTypeInput.toUpperCase()
-                        );
+                roomType = RoomType.valueOf(roomTypeInput.toUpperCase());
             }
 
-            System.out.println(
-                    "Current Price: "
-                            + room.getPricePerNight()
-            );
+            System.out.println("Current Price: " + room.getPricePerNight());
 
-            System.out.print(
-                    "New Price "
-                            + "(blank = keep current): "
-            );
+            System.out.print("New Price " + "(blank = keep current): ");
 
-            String priceInput =
-                    scanner.nextLine().trim();
+            String priceInput = scanner.nextLine().trim();
 
             BigDecimal price;
 
             if (priceInput.isBlank()) {
 
-                price =
-                        room.getPricePerNight();
+                price = room.getPricePerNight();
 
             } else {
 
-                price =
-                        new BigDecimal(priceInput);
+                price = new BigDecimal(priceInput);
             }
 
-            System.out.println(
-                    "Current Status: "
-                            + room.getRoomStatus()
-            );
+            System.out.println("Current Status: " + room.getRoomStatus());
 
-            System.out.print(
-                    "New Status "
-                            + "(AVAILABLE/OCCUPIED/MAINTENANCE, blank = keep current): "
-            );
+            System.out.print("New Status " + "(AVAILABLE/OCCUPIED/MAINTENANCE, blank = keep current): ");
 
-            String statusInput =
-                    scanner.nextLine().trim();
+            String statusInput = scanner.nextLine().trim();
 
             RoomStatus roomStatus;
 
             if (statusInput.isBlank()) {
 
-                roomStatus =
-                        room.getRoomStatus();
+                roomStatus = room.getRoomStatus();
 
             } else {
 
-                roomStatus =
-                        RoomStatus.valueOf(
-                                statusInput.toUpperCase()
-                        );
+                roomStatus = RoomStatus.valueOf(statusInput.toUpperCase());
             }
 
-            System.out.println(
-                    "Current Capacity: "
-                            + room.getCapacity()
-            );
+            System.out.println("Current Capacity: " + room.getCapacity());
 
-            System.out.print(
-                    "New Capacity "
-                            + "(blank = keep current): "
-            );
+            System.out.print("New Capacity " + "(blank = keep current): ");
 
-            String capacityInput =
-                    scanner.nextLine().trim();
+            String capacityInput = scanner.nextLine().trim();
 
             int capacity;
 
             if (capacityInput.isBlank()) {
 
-                capacity =
-                        room.getCapacity();
+                capacity = room.getCapacity();
 
             } else {
 
-                capacity =
-                        Integer.parseInt(
-                                capacityInput
-                        );
+                capacity = Integer.parseInt(capacityInput);
             }
 
-            roomService.updateRoom(
-                    adminId,
-                    room.getId(),
-                    newRoomNumber,
-                    roomType,
-                    price,
-                    roomStatus,
-                    capacity
-            );
+            roomService.updateRoom(adminId, room.getId(), newRoomNumber, roomType, price, roomStatus, capacity);
 
-            System.out.println(
-                    "\nRoom updated successfully!"
-            );
+            System.out.println("\nRoom updated successfully!");
 
-        } catch (
-                IllegalArgumentException |
-                IllegalStateException e
-        ) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
 
-            System.out.println(
-                    "Error: " + e.getMessage()
-            );
+            System.out.println("Error: " + e.getMessage());
         }
     }
+
     public void deleteRoom(Scanner scanner, UUID adminId) {
 
         try {
