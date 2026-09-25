@@ -6,12 +6,14 @@ import model.enums.RoomStatus;
 import model.enums.RoomType;
 import repository.IRoomRepository;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RoomRepositoryJdbc implements IRoomRepository {
@@ -77,6 +79,7 @@ public class RoomRepositoryJdbc implements IRoomRepository {
             try (ResultSet resultSet = statement.executeQuery()) {
 
                 if (resultSet.next()) {
+
                     return mapRoom(resultSet);
                 }
             }
@@ -90,7 +93,7 @@ public class RoomRepositoryJdbc implements IRoomRepository {
     }
 
     @Override
-    public RoomDomain findByRoomNumber(String roomNumber) {
+    public Optional<RoomDomain> findByRoomNumber(String roomNumber) {
 
         String sql = "SELECT id, user_id, roomnumber, roomtype, " + "pricepernight, roomstatus, capacity " + "FROM rooms " + "WHERE LOWER(roomnumber) = LOWER(?)";
 
@@ -103,7 +106,8 @@ public class RoomRepositoryJdbc implements IRoomRepository {
             try (ResultSet resultSet = statement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    return mapRoom(resultSet);
+
+                    return Optional.of(mapRoom(resultSet));
                 }
             }
 
@@ -112,7 +116,7 @@ public class RoomRepositoryJdbc implements IRoomRepository {
             throw new RuntimeException("Error finding room by number: " + e.getMessage(), e);
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -211,7 +215,7 @@ public class RoomRepositoryJdbc implements IRoomRepository {
 
         String roomType = resultSet.getString("roomtype");
 
-        var pricePerNight = resultSet.getBigDecimal("pricepernight");
+        BigDecimal pricePerNight = resultSet.getBigDecimal("pricepernight");
 
         String roomStatus = resultSet.getString("roomstatus");
 

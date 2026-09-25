@@ -10,6 +10,7 @@ import repository.IUserRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RoomService {
@@ -17,22 +18,12 @@ public class RoomService {
     private final IRoomRepository roomRepository;
     private final IUserRepository userRepository;
 
-    public RoomService(
-            IRoomRepository roomRepository,
-            IUserRepository userRepository
-    ) {
+    public RoomService(IRoomRepository roomRepository, IUserRepository userRepository) {
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
     }
 
-    public RoomDomain createRoom(
-            UUID adminId,
-            UUID userId,
-            String roomNumber,
-            RoomType roomType,
-            BigDecimal pricePerNight,
-            int capacity
-    ) {
+    public RoomDomain createRoom(UUID adminId, UUID userId, String roomNumber, RoomType roomType, BigDecimal pricePerNight, int capacity) {
 
         checkAdmin(adminId);
         validateUser(userId);
@@ -41,59 +32,32 @@ public class RoomService {
         validatePrice(pricePerNight);
         validateCapacity(capacity);
 
-        RoomDomain existingRoom =
-                roomRepository.findByRoomNumber(
-                        roomNumber
-                );
+        Optional<RoomDomain> existingRoom = roomRepository.findByRoomNumber(roomNumber);
 
         if (existingRoom != null) {
 
-            throw new IllegalArgumentException(
-                    "Room number already exists."
-            );
+            throw new IllegalArgumentException("Room number already exists.");
         }
 
-        RoomDomain room =
-                new RoomDomain(
-                        userId,
-                        roomNumber.trim(),
-                        roomType,
-                        pricePerNight,
-                        RoomStatus.AVAILABLE,
-                        capacity
-                );
+        RoomDomain room = new RoomDomain(userId, roomNumber.trim(), roomType, pricePerNight, RoomStatus.AVAILABLE, capacity);
 
         return roomRepository.create(room);
     }
 
-    public RoomDomain getRoomByRoomNumber(
-            UUID adminId,
-            String roomNumber
-    ) {
-
+    public RoomDomain getRoomByRoomNumber(UUID adminId, String roomNumber) {
         checkAdmin(adminId);
 
-        return roomRepository.findByRoomNumber(roomNumber);
+        return roomRepository.findByRoomNumber(roomNumber).orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomNumber));
     }
 
-    public List<RoomDomain> getAllRooms(
-            UUID adminId
-    ) {
+    public List<RoomDomain> getAllRooms(UUID adminId) {
 
         checkAdmin(adminId);
 
         return roomRepository.findAll();
     }
 
-    public void updateRoom(
-            UUID adminId,
-            UUID roomId,
-            String roomNumber,
-            RoomType roomType,
-            BigDecimal pricePerNight,
-            RoomStatus roomStatus,
-            int capacity
-    ) {
+    public void updateRoom(UUID adminId, UUID roomId, String roomNumber, RoomType roomType, BigDecimal pricePerNight, RoomStatus roomStatus, int capacity) {
 
         checkAdmin(adminId);
 
@@ -103,73 +67,42 @@ public class RoomService {
         validateRoomStatus(roomStatus);
         validateCapacity(capacity);
 
-        RoomDomain existingRoom =
-                roomRepository.findById(roomId);
+        RoomDomain existingRoom = roomRepository.findById(roomId);
 
         if (existingRoom == null) {
 
-            throw new IllegalArgumentException(
-                    "Room not found."
-            );
+            throw new IllegalArgumentException("Room not found.");
         }
 
-        RoomDomain roomWithSameNumber =
-                roomRepository.findByRoomNumber(
-                        roomNumber
-                );
+        Optional<RoomDomain> roomWithSameNumber = roomRepository.findByRoomNumber(roomNumber);
 
-        if (
-                roomWithSameNumber != null &&
-                        !roomWithSameNumber
-                                .getId()
-                                .equals(roomId)
-        ) {
+        if (roomWithSameNumber.isPresent() && !roomWithSameNumber.get().getId().equals(roomId)) {
 
-            throw new IllegalArgumentException(
-                    "Room number already exists."
-            );
+            throw new IllegalArgumentException("Room number already exists.");
         }
 
-        existingRoom.setRoomNumber(
-                roomNumber.trim()
-        );
+        existingRoom.setRoomNumber(roomNumber.trim());
 
-        existingRoom.setRoomType(
-                roomType
-        );
+        existingRoom.setRoomType(roomType);
 
-        existingRoom.setPricePerNight(
-                pricePerNight
-        );
+        existingRoom.setPricePerNight(pricePerNight);
 
-        existingRoom.setRoomStatus(
-                roomStatus
-        );
+        existingRoom.setRoomStatus(roomStatus);
 
-        existingRoom.setCapacity(
-                capacity
-        );
+        existingRoom.setCapacity(capacity);
 
-        roomRepository.update(
-                existingRoom
-        );
+        roomRepository.update(existingRoom);
     }
 
-    public void deleteRoom(
-            UUID adminId,
-            UUID roomId
-    ) {
+    public void deleteRoom(UUID adminId, UUID roomId) {
 
         checkAdmin(adminId);
 
-        RoomDomain room =
-                roomRepository.findById(roomId);
+        RoomDomain room = roomRepository.findById(roomId);
 
         if (room == null) {
 
-            throw new IllegalArgumentException(
-                    "Room not found."
-            );
+            throw new IllegalArgumentException("Room not found.");
         }
 
         roomRepository.delete(roomId);
@@ -177,21 +110,16 @@ public class RoomService {
 
     private void checkAdmin(UUID userId) {
 
-        UserDomain user =
-                userRepository.findById(userId);
+        UserDomain user = userRepository.findById(userId);
 
         if (user == null) {
 
-            throw new IllegalArgumentException(
-                    "User not found."
-            );
+            throw new IllegalArgumentException("User not found.");
         }
 
         if (user.getRole() != UserRole.ADMIN) {
 
-            throw new IllegalStateException(
-                    "Only administrators can manage rooms."
-            );
+            throw new IllegalStateException("Only administrators can manage rooms.");
         }
     }
 
@@ -199,93 +127,59 @@ public class RoomService {
 
         if (userId == null) {
 
-            throw new IllegalArgumentException(
-                    "User ID cannot be null."
-            );
+            throw new IllegalArgumentException("User ID cannot be null.");
         }
 
-        UserDomain user =
-                userRepository.findById(userId);
+        UserDomain user = userRepository.findById(userId);
 
         if (user == null) {
 
-            throw new IllegalArgumentException(
-                    "Assigned user does not exist."
-            );
+            throw new IllegalArgumentException("Assigned user does not exist.");
         }
     }
 
-    private void validateRoomNumber(
-            String roomNumber
-    ) {
+    private void validateRoomNumber(String roomNumber) {
 
-        if (
-                roomNumber == null ||
-                        roomNumber.isBlank()
-        ) {
+        if (roomNumber == null || roomNumber.isBlank()) {
 
-            throw new IllegalArgumentException(
-                    "Room number cannot be empty."
-            );
+            throw new IllegalArgumentException("Room number cannot be empty.");
         }
     }
 
-    private void validateRoomType(
-            RoomType roomType
-    ) {
+    private void validateRoomType(RoomType roomType) {
 
         if (roomType == null) {
 
-            throw new IllegalArgumentException(
-                    "Room type is required."
-            );
+            throw new IllegalArgumentException("Room type is required.");
         }
     }
 
-    private void validatePrice(
-            BigDecimal price
-    ) {
+    private void validatePrice(BigDecimal price) {
 
         if (price == null) {
 
-            throw new IllegalArgumentException(
-                    "Price is required."
-            );
+            throw new IllegalArgumentException("Price is required.");
         }
 
-        if (
-                price.compareTo(
-                        BigDecimal.ZERO
-                ) <= 0
-        ) {
+        if (price.compareTo(BigDecimal.ZERO) <= 0) {
 
-            throw new IllegalArgumentException(
-                    "Price must be greater than zero."
-            );
+            throw new IllegalArgumentException("Price must be greater than zero.");
         }
     }
 
-    private void validateRoomStatus(
-            RoomStatus roomStatus
-    ) {
+    private void validateRoomStatus(RoomStatus roomStatus) {
 
         if (roomStatus == null) {
 
-            throw new IllegalArgumentException(
-                    "Room status is required."
-            );
+            throw new IllegalArgumentException("Room status is required.");
         }
     }
 
-    private void validateCapacity(
-            int capacity
-    ) {
+    private void validateCapacity(int capacity) {
 
         if (capacity <= 0) {
 
-            throw new IllegalArgumentException(
-                    "Capacity must be greater than zero."
-            );
+            throw new IllegalArgumentException("Capacity must be greater than zero.");
         }
     }
 }

@@ -1,14 +1,18 @@
 import Controller.AuthController;
+import Controller.ReservationController;
 import Controller.RoomController;
 import config.DatabaseMigration;
 import db.DatabaseConnection;
 import model.UserDomain;
 import model.enums.UserRole;
+import repository.IReservationRepository;
 import repository.IRoomRepository;
 import repository.IUserRepository;
+import repository.jdbc.ReservationRepositoryJdbc;
 import repository.jdbc.RoomRepositoryJdbc;
 import repository.jdbc.UserRepositoryJdbc;
 import service.AuthService;
+import service.ReservationService;
 import service.RoomService;
 
 import java.util.Scanner;
@@ -57,6 +61,11 @@ public class Main {
 
         RoomService roomService = new RoomService(roomRepo, userRepo);
         RoomController roomController = new RoomController(roomService);
+
+
+        IReservationRepository reservationRepo = new ReservationRepositoryJdbc(databaseConnection);
+        ReservationService reservationService = new ReservationService(reservationRepo,roomRepo);
+        ReservationController reservationController = new ReservationController(reservationService);
 
         // ==============================
         // Application state
@@ -146,6 +155,8 @@ public class Main {
                 System.out.println("CLIENT MENU");
 
                 System.out.println("================================");
+                System.out.println("4. My Reservation");
+
                 System.out.println("5. Make Reservation");
 
                 System.out.println("6. Cancel Reservation");
@@ -162,6 +173,16 @@ public class Main {
 
                 switch (choice) {
 
+                    case 4:
+                        roomRepo.findAll();
+                        reservationController.myReservations(loggedInUser.getId());
+                        break;
+                    case 5:
+                        reservationController.makeReservation(scanner,loggedInUser.getId());
+                        break;
+
+                    case 6:
+                        reservationController.cancel();
                     case 7:
 
                         authController.updateProfile(scanner, currentUserId);
@@ -253,6 +274,7 @@ public class Main {
 
                     case 5:
 
+                        reservationController.accept(scanner);
                         System.out.println("\n[Accept Reservation - not connected yet]\n");
 
                         break;

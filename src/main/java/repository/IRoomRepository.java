@@ -3,6 +3,7 @@ package repository;
 import model.RoomDomain;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IRoomRepository {
@@ -11,7 +12,7 @@ public interface IRoomRepository {
 
     RoomDomain findById(UUID id);
 
-    RoomDomain findByRoomNumber(String roomNumber);
+    Optional<RoomDomain> findByRoomNumber(String roomNumber);
 
     List<RoomDomain> findAll();
 

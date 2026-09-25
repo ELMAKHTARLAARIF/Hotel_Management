@@ -24,14 +24,13 @@ public class UserRepositoryJdbc implements IUserRepository {
     @Override
     public UserDomain create(UserDomain user) {
 
-        String sql = "INSERT INTO users " + "(full_name, email, password_hash, salt, role) " + "VALUES (?, ?, ?, ?, ?) " + "RETURNING id";
+        String sql = "INSERT INTO users " + "(full_name, email, password_hash, role) " + "VALUES (?, ?, ?, ?) " + "RETURNING id";
 
         try (Connection connection = databaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, user.getFullName());
             statement.setString(2, user.getEmail());
             statement.setString(3, user.getPasswordHash());
-            statement.setString(4, user.getSalt());
-            statement.setString(5, user.getRole().name().toLowerCase());
+            statement.setString(4, user.getRole().name().toLowerCase());
 
             try (ResultSet resultSet = statement.executeQuery()) {
 
@@ -56,7 +55,7 @@ public class UserRepositoryJdbc implements IUserRepository {
     @Override
     public UserDomain findById(UUID id) {
 
-        String sql = "SELECT id, full_name, email, " + "password_hash, salt, role " + "FROM users " + "WHERE id = ?";
+        String sql = "SELECT id, full_name, email, " + "password_hash, role " + "FROM users " + "WHERE id = ?";
 
         try (Connection connection = databaseConnection.getConnection();
 
@@ -82,7 +81,7 @@ public class UserRepositoryJdbc implements IUserRepository {
     @Override
     public UserDomain findByEmail(String email) {
 
-        String sql = "SELECT id, full_name, email, " + "password_hash, salt, role " + "FROM users " + "WHERE LOWER(email) = LOWER(?)";
+        String sql = "SELECT id, full_name, email, " + "password_hash, role " + "FROM users " + "WHERE LOWER(email) = LOWER(?)";
 
         try (Connection connection = databaseConnection.getConnection();
 
@@ -110,7 +109,7 @@ public class UserRepositoryJdbc implements IUserRepository {
 
         List<UserDomain> users = new ArrayList<>();
 
-        String sql = "SELECT id, full_name, email, " + "password_hash, salt, role " + "FROM users";
+        String sql = "SELECT id, full_name, email, " + "password_hash, role " + "FROM users";
 
         try (Connection connection = databaseConnection.getConnection();
 
@@ -133,7 +132,7 @@ public class UserRepositoryJdbc implements IUserRepository {
     @Override
     public void update(UserDomain user) {
 
-        String sql = "UPDATE users " + "SET full_name = ?, " + "password_hash = ?, " + "salt = ? " + "WHERE id = ?";
+        String sql = "UPDATE users " + "SET full_name = ?, " + "password_hash = ?, " + "WHERE id = ?";
 
         try (Connection connection = databaseConnection.getConnection();
 
@@ -141,8 +140,7 @@ public class UserRepositoryJdbc implements IUserRepository {
 
             statement.setString(1, user.getFullName());
             statement.setString(2, user.getPasswordHash());
-            statement.setString(3, user.getSalt());
-            statement.setObject(4, user.getId());
+            statement.setObject(3, user.getId());
 
             int rowsUpdated = statement.executeUpdate();
 
@@ -189,12 +187,10 @@ public class UserRepositoryJdbc implements IUserRepository {
 
         String passwordHash = resultSet.getString("password_hash");
 
-        String salt = resultSet.getString("salt");
-
         String role = resultSet.getString("role");
 
         UserRole userRole = UserRole.valueOf(role.toUpperCase());
 
-        return new UserDomain(id, fullName, email, passwordHash, salt, userRole);
+        return new UserDomain(id, fullName, email, passwordHash, userRole);
     }
 }

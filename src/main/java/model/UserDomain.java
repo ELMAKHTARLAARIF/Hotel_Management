@@ -10,27 +10,13 @@ public class UserDomain {
     private String fullName;
     private String email;
     private String passwordHash;
-    private String salt;
     private UserRole role;
-
-    public UserDomain(
-            String fullName,
-            String email,
-            String passwordHash,
-            UserRole role
-    ) {
-        this.fullName = fullName;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.role = role;
-    }
 
     public UserDomain(
             UUID id,
             String fullName,
             String email,
             String passwordHash,
-            String salt,
             UserRole role
     ) {
         this.id = id;

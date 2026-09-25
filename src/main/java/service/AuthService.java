@@ -13,10 +13,10 @@ import java.util.UUID;
 
 public class AuthService {
 
-    private final IUserRepository iUserRepository;
+    private final IUserRepository userRepository;
 
     public AuthService(IUserRepository iUserRepository) {
-        this.iUserRepository = iUserRepository;
+        this.userRepository = iUserRepository;
     }
 
     public UUID registerUser(String fullName, String email, String password) {
@@ -38,7 +38,7 @@ public class AuthService {
 
         email = email.trim().toLowerCase();
 
-        UserDomain existingUser = iUserRepository.findByEmail(email);
+        UserDomain existingUser = userRepository.findByEmail(email);
 
         if (existingUser != null) {
 
@@ -46,10 +46,10 @@ public class AuthService {
         }
 
         String passwordHash = PasswordUtil.hash(password);
+        UUID id = UUID.randomUUID();
+        UserDomain newUser = new UserDomain(id,fullName.trim(), email, passwordHash, UserRole.CLIENT);
 
-        UserDomain newUser = new UserDomain(fullName.trim(), email, passwordHash, UserRole.CLIENT);
-
-        return iUserRepository.create(newUser).getId();
+        return userRepository.create(newUser).getId();
     }
 
     private void validateEmail(String email) {
@@ -77,7 +77,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        UserDomain user = iUserRepository.findByEmail(email.trim().toLowerCase());
+        UserDomain user = userRepository.findByEmail(email.trim().toLowerCase());
 
         if (user == null) {
 
@@ -94,12 +94,12 @@ public class AuthService {
 
     public Optional<UserDomain> getUserById(UUID userId) {
 
-        return Optional.ofNullable(iUserRepository.findById(userId));
+        return Optional.ofNullable(userRepository.findById(userId));
     }
 
     public void updateProfile(UUID userId, String newFullName, String newPassword) {
 
-        UserDomain existingUser = iUserRepository.findById(userId);
+        UserDomain existingUser = userRepository.findById(userId);
 
         if (existingUser == null) {
 
@@ -122,6 +122,6 @@ public class AuthService {
             existingUser.setPasswordHash(passwordHash);
         }
 
-        iUserRepository.update(existingUser);
+        userRepository.update(existingUser);
     }
 }
