@@ -62,19 +62,19 @@ public class RoomController {
         }
     }
 
-    public void listRooms(UUID adminId) {
+    public boolean listRooms() {
 
         try {
 
             System.out.println("\n------ ALL ROOMS ------");
 
-            List<RoomDomain> rooms = roomService.getAllRooms(adminId);
+            List<RoomDomain> rooms = roomService.getAllRooms();
 
             if (rooms.isEmpty()) {
 
                 System.out.println("No rooms found.");
 
-                return;
+                return false;
             }
 
             for (RoomDomain room : rooms) {
@@ -94,9 +94,12 @@ public class RoomController {
 
             System.out.println("----------------------------");
 
+            return true;
+
         } catch (IllegalArgumentException | IllegalStateException e) {
 
             System.out.println("Error: " + e.getMessage());
+            return false;
         }
     }
 

@@ -9,6 +9,7 @@ import repository.IRoomRepository;
 import service.ReservationService;
 
 import javax.management.relation.RoleInfoNotFoundException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -50,7 +51,8 @@ public class ReservationController {
             System.out.println("Error: Invalid date format. Please use YYYY-MM-DD.");
         } catch (NumberFormatException e) {
             System.out.println("Error: Please enter a valid number for guests.");
-        } catch (InvalidReservationDateException | RoomNotFoundException | RoomNotAvailableException | IllegalArgumentException e) {
+        } catch (InvalidReservationDateException | RoomNotFoundException | RoomNotAvailableException |
+                 IllegalArgumentException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -79,12 +81,26 @@ public class ReservationController {
                 System.out.println("Checking date:"+reservation.getCheck_in()+"Check Out date"+reservation.getCheck_out()+"Number Of Guests: "+reservation.getNumberOfGuest()+"Reservation Code: "+reservation.getReservationCode()+"Reservation Status: "+reservation.getStatus()+"Total Price: "+ reservation.getTotal_amount()+"Created At: "+ reservation.getCreated_at());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not retrieve reservations", e);
+            System.out.println(e.getMessage());
         }
     }
-    public void cancel(){
+    public void cancel(Scanner scanner, UUID currentUserId) {
+        System.out.println("------ Cancel a Reservation --------");
 
+        try {
+            System.out.print("Reservation Code: ");
+            String reservationCode = scanner.nextLine().trim();
+
+            BigDecimal refundAmount = reservationService.cancelReservation(reservationCode, currentUserId);
+
+            System.out.println("Reservation cancelled successfully.");
+            System.out.println("Refund amount: $" + refundAmount);
+
+        } catch (ReservationNotFoundException | IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Error: Could not cancel reservation due to a database error.");
+        }
     }
-
 
 }

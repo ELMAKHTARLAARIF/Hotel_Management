@@ -50,9 +50,8 @@ public class RoomService {
         return roomRepository.findByRoomNumber(roomNumber).orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomNumber));
     }
 
-    public List<RoomDomain> getAllRooms(UUID adminId) {
+    public List<RoomDomain> getAllRooms() {
 
-        checkAdmin(adminId);
 
         return roomRepository.findAll();
     }

@@ -74,28 +74,20 @@ public class ReservationRepositoryJdbc implements IReservationRepository {
     }
 
     @Override
-    public void changeStatus(String reservationCode, ReservationStatus status) {
-
-        String sql = "UPDATE reservations " + "SET status = ? " + "WHERE reservationcode = ?";
-
+    public void updateStatus(UUID reservationId, ReservationStatus status) throws SQLException {
+        String sql = "UPDATE reservations SET reservationstatus = ? WHERE id = ?";
         try (Connection connection = databaseConnection.getConnection();
-
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, status.name());
-
-            statement.setString(2, reservationCode);
+            statement.setObject(2, reservationId);
 
             int rowsUpdated = statement.executeUpdate();
-
             if (rowsUpdated == 0) {
-
-                throw new IllegalArgumentException("Reservation not found.");
+                throw new RuntimeException("Reservation not found.");
             }
-
         } catch (SQLException e) {
-
-            throw new RuntimeException("Error changing reservation status: " + e.getMessage(), e);
+            throw new SQLException("Error updating reservation status: " + e.getMessage(), e);
         }
     }
 

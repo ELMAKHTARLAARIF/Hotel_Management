@@ -3,11 +3,14 @@ package service;
 import Payment.Imp.CardStrategy;
 import Payment.Imp.CashStrategy;
 import Payment.Imp.PaypalStrategy;
+import Payment.Imp.RefundCalculator;
 import Payment.PaymentStrategy;
 import exception.InvalidReservationDateException;
+import exception.ReservationNotFoundException;
 import exception.RoomNotAvailableException;
 import exception.RoomNotFoundException;
 import model.InvoiceDomain;
+import model.PaymentDomain;
 import model.ReservationDomain;
 import model.RoomDomain;
 import model.enums.ReservationStatus;
@@ -16,6 +19,7 @@ import repository.IInvoiceRepository;
 import repository.IReservationRepository;
 import repository.IRoomRepository;
 import repository.jdbc.InvoiceRepositoryJdbc;
+import repository.jdbc.PaymentRepositoryJdbc;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -60,7 +64,6 @@ public class ReservationService {
         // Find the room if not exist return optional  throw exception
         RoomDomain targetRoom = roomRepository.findByRoomNumber(roomNumber).orElseThrow(() -> new RoomNotFoundException("Room " + roomNumber + " does not exist."));
 
-
         // Check capacity
         if (numberOfGuests > targetRoom.getCapacity()) {
             throw new IllegalArgumentException("Room capacity is " + targetRoom.getCapacity() + ", but you requested for " + numberOfGuests + " guests.");
@@ -91,7 +94,6 @@ public class ReservationService {
         }
         // Price the stay using the resolved payment strategy (bookingDate = today)
         LocalDate bookingDate = LocalDate.now();
-//        targetRoom.getPricePerNight() katreturni bigdecimal
         double pricePerNight = targetRoom.getPricePerNight().doubleValue();
         HashMap calculateDetails = paymentStrategy.calculate(pricePerNight, checkIn, checkOut, bookingDate, TAX_RATE);
         BigDecimal totalPrice = (BigDecimal) calculateDetails.get("totalPrice");
@@ -107,27 +109,48 @@ public class ReservationService {
         targetRoom.setRoomStatus(RoomStatus.OCCUPIED);
         System.out.println("Success! Reservation created. Total Price: $" + totalPrice + " for " + nights + " nights." + userId);
 //        create Payment table;
-           createPaymnet(paymentStrategy,paymentMethod,newReservation.getId(),(BigDecimal) calculateDetails.get("totalPrice"));
+        PaymentDomain payment = new PaymentDomain(null, newReservation.getId(), (BigDecimal) calculateDetails.get("totalPrice"), LocalDate.now(), paymentMethod);
+        PaymentRepositoryJdbc.create(payment);
 //        create Invoice table;
-        createInvoice(calculateDetails,newReservation);
+        createInvoice(calculateDetails, newReservation);
 
         return true;
     }
-    public void createInvoice(HashMap calculateDetails,ReservationDomain newReservation) throws SQLException {
+
+    public void createInvoice(HashMap calculateDetails, ReservationDomain newReservation) throws SQLException {
         Random random = new Random();
         String invoiceCode = String.valueOf(100000 + random.nextInt(900000));
-        InvoiceDomain inoice = new InvoiceDomain(null, newReservation.getId(), invoiceCode, (BigDecimal) calculateDetails.get("subtotal"), (BigDecimal) calculateDetails.get("tax"), (BigDecimal) calculateDetails.get("totalPrice"), null);
+        InvoiceDomain invoice = new InvoiceDomain(null, newReservation.getId(), invoiceCode, (BigDecimal) calculateDetails.get("subtotal"), (BigDecimal) calculateDetails.get("tax"), (BigDecimal) calculateDetails.get("totalPrice"), null);
         IInvoiceRepository invoiceRepo = new InvoiceRepositoryJdbc();
-        invoiceRepo.create(inoice);
+        invoiceRepo.create(invoice);
     }
-       public void createPaymnet(PaymentStrategy paymentStarategy,String paymentMethod,UUID reservation_id,BigDecimal totalPrice){
 
-       }
     public List<ReservationDomain> myReservations(UUID user_id) {
         try {
             return reservationRepository.findByUserID(user_id);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public BigDecimal cancelReservation(String reservationCode, UUID currentUserId) throws SQLException, ReservationNotFoundException {
+
+        ReservationDomain reservation = reservationRepository.findByCode(reservationCode)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation " + reservationCode + " does not exist."));
+
+        if (!reservation.getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("This reservation does not belong to the current user.");
+        }
+
+        if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Only confirmed reservations can be cancelled. Current status: "
+                    + reservation.getStatus());
+        }
+
+        BigDecimal refundAmount = RefundCalculator.calculateRefund(reservation.getTotal_amount(), reservation.getCheck_in());
+
+        reservationRepository.updateStatus(reservation.getId(), ReservationStatus.CANCELLED);
+
+        return refundAmount;
     }
 }

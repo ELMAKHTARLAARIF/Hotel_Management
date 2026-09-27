@@ -1,5 +1,7 @@
 package Payment.Imp;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -37,8 +39,7 @@ public final class PricingCalculator {
 
         if (nights >= 7) {
             subtotal *= 0.90;
-        }
-        if (nights >= 14) {
+        } else if (nights >= 14) {
             subtotal *= 0.85;
         }
         long DaysBeforeCheckin = ChronoUnit.DAYS.between(bookingDate, checkIn);
@@ -50,11 +51,16 @@ public final class PricingCalculator {
 
         double tax = subtotal * taxRate;
         double totalPrice = subtotal + tax;
+
+        BigDecimal subtotalBd = BigDecimal.valueOf(subtotal).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxBd = BigDecimal.valueOf(tax).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalPriceBd = BigDecimal.valueOf(totalPrice).setScale(2, RoundingMode.HALF_UP);
+
         HashMap calculateDetails = new HashMap();
         calculateDetails.put("taxRate", taxRate);
-        calculateDetails.put("subtotal", subtotal);
-        calculateDetails.put("tax", tax);
-        calculateDetails.put("totalPrice",totalPrice);
+        calculateDetails.put("subtotal", subtotalBd);
+        calculateDetails.put("tax", taxBd);
+        calculateDetails.put("totalPrice", totalPriceBd);
         return calculateDetails;
     }
 }

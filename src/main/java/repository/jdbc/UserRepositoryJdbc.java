@@ -132,10 +132,9 @@ public class UserRepositoryJdbc implements IUserRepository {
     @Override
     public void update(UserDomain user) {
 
-        String sql = "UPDATE users " + "SET full_name = ?, " + "password_hash = ?, " + "WHERE id = ?";
+        String sql = "UPDATE users " + "SET full_name = ?, " + "password_hash = ? " + "WHERE id = ?";
 
         try (Connection connection = databaseConnection.getConnection();
-
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, user.getFullName());

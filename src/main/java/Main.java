@@ -3,6 +3,7 @@ import Controller.ReservationController;
 import Controller.RoomController;
 import config.DatabaseMigration;
 import db.DatabaseConnection;
+import exception.RoomNotFoundException;
 import model.UserDomain;
 import model.enums.UserRole;
 import repository.IReservationRepository;
@@ -33,7 +34,6 @@ public class Main {
 
         DatabaseMigration.migrate();
 
-        System.out.println("Database migration completed!");
 
         // ==============================
         // Database connection
@@ -158,6 +158,9 @@ public class Main {
                 System.out.println("CLIENT MENU");
 
                 System.out.println("================================");
+
+                System.out.println("3. Show All Rooms");
+
                 System.out.println("4. My Reservation");
 
                 System.out.println("5. Make Reservation");
@@ -175,21 +178,21 @@ public class Main {
                 int choice = readSafeInt(scanner);
 
                 switch (choice) {
-
+                    case 3:
+                        roomController.listRooms();
                     case 4:
-                        roomRepo.findAll();
-                        reservationController.myReservations(loggedInUser.getId());
+                            reservationController.myReservations(loggedInUser.getId());
                         break;
                     case 5:
-                        reservationController.makeReservation(scanner,loggedInUser.getId());
-                        break;
-
+                    if (roomController.listRooms()) {
+                        reservationController.makeReservation(scanner, loggedInUser.getId());
+                    }
+                    break;
                     case 6:
-                        reservationController.cancel();
+                        reservationController.cancel(scanner,loggedInUser.getId());
+                        break;
                     case 7:
-
                         authController.updateProfile(scanner, currentUserId);
-
                         break;
 
                     case 9:
@@ -260,12 +263,12 @@ public class Main {
 
                     case 2:
 
-                        roomController.listRooms(loggedInUser.getId());
+                        roomController.listRooms();
 
                         break;
 
                     case 3:
-                        roomController.listRooms(loggedInUser.getId());
+                        roomController.listRooms();
                         roomController.updateRoom(scanner, loggedInUser.getId());
                         break;
 
