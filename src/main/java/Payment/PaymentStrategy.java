@@ -1,8 +1,12 @@
 package Payment;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashMap;
+
 public interface PaymentStrategy {
 
-    double calculate(double pricePerNight, long numberOfNights, double taxRate);
+    HashMap calculate(double pricePerNight, LocalDate checkIn, LocalDate checkOut, LocalDate bookingDate, double taxRate);
 
-    void pay(double amount);
+    void pay(BigDecimal amount);
 }

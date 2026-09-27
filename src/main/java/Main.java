@@ -15,6 +15,10 @@ import service.AuthService;
 import service.ReservationService;
 import service.RoomService;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -23,7 +27,6 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-
         // ==============================
         // Database migration
         // ==============================

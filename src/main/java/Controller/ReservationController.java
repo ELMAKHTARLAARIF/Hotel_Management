@@ -41,7 +41,10 @@ public class ReservationController {
             System.out.print("Room Number: ");
             String roomNumber = scanner.nextLine().trim();
 
-            reservationService.makeReservation(roomNumber, checkIn, checkOut, numberOfGuests, currentUserId);
+            System.out.print("Payment Method (CASH / CARD / PAYPAL): ");
+            String paymentStrategy = scanner.nextLine().trim();
+
+            reservationService.makeReservation(roomNumber, checkIn, checkOut, numberOfGuests, currentUserId, paymentStrategy);
 
         } catch (DateTimeParseException e) {
             System.out.println("Error: Invalid date format. Please use YYYY-MM-DD.");
